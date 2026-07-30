@@ -5,7 +5,8 @@
   "main": "server.ts",
   "scripts": {
     "start": "nodemon --exec babel-node ./server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --config=src/tests/jest.config.ts",
+    "test:watch": "npm run test -- --watch"
   },
   "repository": {
     "type": "git",
@@ -20,15 +21,25 @@
   },
   "homepage": "https://github.com/jlk-zhou/rest-api-template#readme",
   "devDependencies": {
-    "@babel/core": "^7.29.7",
-    "@babel/node": "^7.29.7",
-    "@babel/preset-env": "^7.29.7",
+    "@babel/core": "^8.0.1",
+    "@babel/node": "^8.0.1",
+    "@babel/preset-env": "^8.0.2",
+    "@babel/preset-flow": "^8.0.1",
+    "@babel/preset-typescript": "^8.0.1",
+    "@jest/globals": "^30.4.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "babel-jest": "^30.4.1",
+    "brace-expansion": "^5.0.8",
+    "jest": "^30.4.2",
+    "jest-extended": "^7.0.0",
     "nodemon": "^3.1.14",
+    "ts-jest": "^29.4.12",
+    "ts-node": "^10.9.2",
     "tsx": "^4.23.1",
-    "typescript": "^7.0.2"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -40,5 +51,8 @@
     "pg": "^8.21.0",
     "prisma": "^6.19.3",
     "uuid": "^14.0.0"
+  },
+  "overrides": {
+    "brace-expansion": "$brace-expansion"
   }
 }
