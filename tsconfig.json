@@ -3,6 +3,7 @@
     "target": "es2025",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "types": ["jest", "jest-extended"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "ignoreDeprecations": "6.0",
@@ -13,7 +14,7 @@
     "strict": true,
     "skipLibCheck": true,
     "noImplicitAny": true,
-    "strictNullChecks": true, 
+    "strictNullChecks": true,
     "allowImportingTsExtensions": true
   }
 }

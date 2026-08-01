@@ -3,6 +3,7 @@ import cors from "cors";
 import express from "express";
 
 import routes from "./routes/index.ts";
+import errorHandler from "./errors/errorHandler.ts";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use("/users", routes.users);
-app.use("/messages", routes.messages);
+
+app.use(errorHandler);
 
 export default app;

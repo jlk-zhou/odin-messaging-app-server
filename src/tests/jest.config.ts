@@ -11,7 +11,7 @@ const jestConfig: JestConfigWithTsJest = {
   ...presetConfig,
   verbose: true,
   roots: [`${path.join(__dirname, "..")}`],
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/jest.setup.ts"],
   testEnvironment: "node",
   moduleFileExtensions: [
     "ts",

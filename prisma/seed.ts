@@ -8,40 +8,36 @@ const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-async function main() {
+import bcrypt from "bcryptjs";
+
+export async function main() {
   const alice = await prisma.user.upsert({
-    where: { email: "alice@prisma.io" },
+    where: { username: "alice" },
     update: {},
     create: {
-      email: "alice@prisma.io",
-      username: "Alice",
-      messages: {
-        create: {
-          content: "Check out Prisma with Next.js",
-        },
-      },
+      username: "alice",
+      firstName: "Alice",
+      lastName: "Chong",
+      email: "alice@gmail.com",
+      bio: "My parents dumped me so here I am",
+      icon: "https://alice.icon.png",
+      password: await bcrypt.hash("123456", 10),
     },
   });
 
   const bob = await prisma.user.upsert({
-    where: { email: "bob@prisma.io" },
+    where: { username: "bob" },
     update: {},
     create: {
-      email: "bob@prisma.io",
-      username: "Bob",
-      messages: {
-        create: [
-          {
-            content: "Follow Prisma on Twitter",
-          },
-          {
-            content: "Follow Nexus on Twitter",
-          },
-        ],
-      },
+      username: "bob",
+      firstName: "Bob",
+      lastName: "Chan",
+      email: "bob@gmail.com",
+      bio: "I'm a proud SWE",
+      icon: "https://bob.icon.png",
+      password: await bcrypt.hash("password", 10),
     },
   });
-  console.log({ alice, bob });
 }
 
 main()

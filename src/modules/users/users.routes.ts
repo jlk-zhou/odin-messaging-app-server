@@ -1,8 +1,11 @@
 import { Router } from "express";
-import * as usersController from "./users.controller.ts"; 
+import * as usersController from "./users.controller.ts";
+import { validateUser } from "./middleware/verifyUser.ts";
+
 const router = Router();
 
-router.get("/", usersController.getAllUsers); 
-router.get("/:userId", usersController.getUser);
+router.get("/:username", usersController.getUser);
+
+router.post("/", validateUser, usersController.createUser);
 
 export default router;
