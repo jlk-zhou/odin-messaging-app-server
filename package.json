@@ -56,7 +56,8 @@
     "express-validator": "^7.3.2",
     "pg": "^8.22.0",
     "prisma": "^7.9.1",
-    "uuid": "^14.0.1"
+    "uuid": "^14.0.1",
+    "zod": "^4.4.3"
   },
   "overrides": {
     "brace-expansion": "$brace-expansion"
