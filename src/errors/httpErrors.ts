@@ -13,6 +13,12 @@ export class BadRequestError extends HttpError {
   }
 }
 
+export class UnauthorizedError extends HttpError {
+  constructor(error: string, statusCode = 400) {
+    super(error, statusCode);
+  }
+}
+
 export class NotFoundError extends HttpError {
   constructor(error: string, statusCode = 404) {
     super(error, statusCode);

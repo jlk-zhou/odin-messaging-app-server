@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 expect.extend(matchers);
 
 afterAll(async () => {
+  await prisma.user.deleteMany();
   await prisma.$disconnect();
   await pool.end();
 });

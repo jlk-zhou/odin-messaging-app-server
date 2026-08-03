@@ -1,5 +1,5 @@
 // import "jest-extended";
 
-export interface GetMessageParams {
-  messageId: string;
+export interface ParamsDictionary {
+  userId: string;
 }

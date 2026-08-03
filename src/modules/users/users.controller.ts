@@ -4,7 +4,7 @@ import { prisma } from "../../lib/prisma.ts";
 import { type NextFunction, type Request, type Response } from "express";
 
 interface GetUserParams {
-  username: string;
+  id: string;
 }
 
 export async function getUser(
@@ -13,32 +13,29 @@ export async function getUser(
   next: NextFunction,
 ) {
   const user = await prisma.user.findUnique({
-    where: { username: req.params.username },
+    where: { id: req.params.id },
   });
 
   if (!user) {
     return next(
-      new NotFoundError(
-        `Cannot find user with username '${req.params.username}'`,
-      ),
+      new NotFoundError(`Cannot find user with username '${req.params.id}'`),
     );
   }
 
-  const { password, ...userWithoutPassword } = user;
-  return res.json(userWithoutPassword);
+  return res.json(user);
 }
 
-export async function createUser(req: Request, res: Response) {
-  const user = await prisma.user.create({
-    data: {
-      username: req.body.username,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: await bcrypt.hash(req.body.password, 10),
-    },
-  });
+// export async function createUser(req: Request, res: Response) {
+//   const user = await prisma.user.create({
+//     data: {
+//       username: req.body.username,
+//       firstName: req.body.firstName,
+//       lastName: req.body.lastName,
+//       email: req.body.email,
+//       password: await bcrypt.hash(req.body.password, 10),
+//     },
+//   });
 
-  const { password, ...userWithoutPassword } = user;
-  return res.json(userWithoutPassword);
-}
+//   const { password, ...userWithoutPassword } = user;
+//   return res.json(userWithoutPassword);
+// }
