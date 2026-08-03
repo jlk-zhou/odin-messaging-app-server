@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
+    "auth-generate": "npx auth@latest generate --output ./prisma/models/auth.prisma",
     "start": "nodemon --exec babel-node ./server.ts",
     "update-test-db": "NODE_DEV='test' npx prisma db push && NODE_DEV='test' npx prisma generate",
     "test": "NODE_DEV='test' node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --config=src/tests/jest.config.ts --detectOpenHandles",
@@ -48,6 +49,7 @@
     "@prisma/client": "^7.9.1",
     "@types/pg": "^8.20.0",
     "bcryptjs": "^3.0.3",
+    "better-auth": "^1.6.23",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
