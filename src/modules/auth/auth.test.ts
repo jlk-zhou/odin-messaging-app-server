@@ -381,6 +381,7 @@ describe("POST /api/auth/sign-out", () => {
         name: "Zach",
         email: "zach@example.com",
         password: "HorseraddishLung312",
+        confirmPassword: "HorseraddishLung312",
       });
 
     // Log user in just in case

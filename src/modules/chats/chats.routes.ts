@@ -4,6 +4,6 @@ import verifySession from "../../middlewares/verifySession.ts";
 
 const router = Router();
 
-router.get("/:userId", verifySession, chatsController.getChats);
+router.get("/", verifySession, chatsController.getChats);
 
 export default router;

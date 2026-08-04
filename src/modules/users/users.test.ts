@@ -6,8 +6,6 @@ import {
   uuid as uuidRegex,
 } from "./util/regex.ts";
 import "jest-extended";
-import { prisma } from "../../lib/prisma.ts";
-import bcrypt from "bcryptjs";
 
 // TODO
 describe.skip("GET /users/:username", () => {
