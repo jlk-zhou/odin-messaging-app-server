@@ -1,22 +1,25 @@
 import { createAuthMiddleware, APIError } from "better-auth/api";
 import * as z from "zod";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 
 const emailFormatError = "must be of correct format.";
-const escape = (s: string) => _.escape(s);
+const escape = (s: string) => {
+  return _.escape(s);
+};
 const emptyError = "must not be empty.";
 const maxLengthError = (max: number) =>
   `'s length must not exceed ${max} characters.`;
 const noLowerCaseError = "must contain at least one lower case letter.";
 const noNumberError = "must contain at least one number.";
 const noUpperCaseError = "must contain at least one upper case letter.";
+const stringError = "must be a string.";
 
 const User = z.object({
   body: z.object({
     name: z
-      .string()
+      .string(`Name ${stringError}`)
       .min(1, `Name ${emptyError}`)
-      .max(30, `Name ${maxLengthError}`)
+      .max(30, `Name ${maxLengthError(50)}`)
       .trim()
       .transform(escape),
     email: z
@@ -26,7 +29,7 @@ const User = z.object({
       .trim()
       .transform(escape),
     password: z
-      .string()
+      .string(`Password ${stringError}`)
       .regex(/[a-z]/, `Password ${noLowerCaseError}`)
       .regex(/[A-Z]/, `Password ${noUpperCaseError}`)
       .regex(/[0-9]/, `Password ${noNumberError}`),

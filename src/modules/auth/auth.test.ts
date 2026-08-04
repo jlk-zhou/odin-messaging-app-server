@@ -1,6 +1,7 @@
 import request, { cookies } from "supertest";
 import app from "../../app.ts";
 import { prisma } from "../../lib/prisma.ts";
+import * as z from "zod";
 
 beforeEach(async () => {
   await prisma.user.deleteMany();
@@ -8,9 +9,10 @@ beforeEach(async () => {
 
 // Test signing up
 describe("POST /api/auth/sign-up/email", () => {
+  const endpoint = "/api/auth/sign-up/email";
   it("creates a user record in database for sign up", async () => {
     const response = await request(app)
-      .post("/api/auth/sign-up/email")
+      .post(endpoint)
       .set({ accept: "application/json" })
       .send({
         name: "Zach",
@@ -37,10 +39,170 @@ describe("POST /api/auth/sign-up/email", () => {
       email: "zach@example.com",
     });
   });
+
+  it("does not create the user if some required fields are missing", async () => {
+    const response = await request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({})
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    // Should include an error message for each field went wrong
+    const errors: z.core.$ZodIssue[] = JSON.parse(response.body.message);
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["name"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["email"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["password"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+
+  it("does not create the user if any user info input is too long", async () => {
+    const response = await request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        name: "toolongtoolongtoolongtoolongtoolongtoolongtoolong",
+        email: "toolongtoolongtoolongtoolongtoolongtoolongtoolong",
+        // Long password will be caught by Better Auth instead of Zod
+        password: "GoodPassword2456",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(response.body.message);
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["name"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["email"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+
+  it("does not create the user if password is too long or too short", async () => {
+    const longPasswordResponse = await request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        name: "Good Name",
+        email: "goodemail@example.com",
+        password:
+          "Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    expect(longPasswordResponse.body).toMatchObject({
+      message: expect.stringMatching(/password/i),
+    });
+
+    const shortPasswordResponse = await request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        name: "Good Name",
+        email: "goodemail@example.com",
+        password: "Short1",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    expect(shortPasswordResponse.body).toMatchObject({
+      message: expect.stringMatching(/password/i),
+    });
+  });
+
+  it("does not create the user with wrong email format", async () => {
+    const response = await request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        name: "Zach",
+        email: "Yo I'm a wrong email format so what?",
+        password: "Verysecurepw1",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(response.body.message);
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["email"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+
+  it("does not create the user if certain unique fields already exist", async () => {
+    await request(app).post(endpoint).set({ accept: "application/json" }).send({
+      name: "Zach",
+      email: "zach@example.com",
+      password: "SecurePw111",
+    });
+
+    const response = await request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        name: "Zach",
+        email: "zach@example.com",
+        password: "SecurePw111",
+      })
+      .expect("Content-Type", /json/)
+      .expect(422);
+
+    expect(response.body).toMatchObject({
+      message: expect.stringMatching(/email/i),
+    });
+  });
+
+  it("does not create the user if password doesn't meet requirement", async () => {
+    const response = await request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        name: "Good Name",
+        email: "goodemail@example.com",
+        // Password meets no requirements: no letters and numbers
+        password: "!!!!!!!!!",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(response.body.message);
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["password"]),
+        message: expect.stringMatching(/lower/i),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["password"]),
+        message: expect.stringMatching(/upper/i),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["password"]),
+        message: expect.stringMatching(/number/i),
+      }),
+    ]);
+  });
 });
 
 // Test signing in
 describe("POST /api/auth/sign-in/email", () => {
+  const endpoint = "/api/auth/sign-in/email";
   // Register a user first before using that to test sign in
   beforeEach(async () => {
     await request(app)
@@ -55,7 +217,7 @@ describe("POST /api/auth/sign-in/email", () => {
 
   it("logs user in for correct email-password combination", async () => {
     const response = await request(app)
-      .post("/api/auth/sign-in/email")
+      .post(endpoint)
       .set({ accept: "application/json" })
       .send({
         email: "zach@example.com",
@@ -79,7 +241,7 @@ describe("POST /api/auth/sign-in/email", () => {
 
   it("does not log user in for wrong email-password combination", async () => {
     await request(app)
-      .post("/api/auth/sign-in/email")
+      .post(endpoint)
       .set({ accept: "application/json" })
       .send({
         email: "zach@example.com",

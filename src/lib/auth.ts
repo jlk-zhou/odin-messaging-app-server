@@ -12,6 +12,8 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    maxPasswordLength: 32,
+    minPasswordLength: 8,
   },
   hooks: {
     before: validateUser,
