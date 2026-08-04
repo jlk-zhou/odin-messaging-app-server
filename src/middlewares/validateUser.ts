@@ -9,6 +9,8 @@ const escape = (s: string) => {
 const emptyError = "must not be empty.";
 const maxLengthError = (max: number) =>
   `'s length must not exceed ${max} characters.`;
+const minLengthError = (min: number) =>
+  `must have more than ${min} characters.`;
 const noLowerCaseError = "must contain at least one lower case letter.";
 const noNumberError = "must contain at least one number.";
 const noUpperCaseError = "must contain at least one upper case letter.";
@@ -20,6 +22,12 @@ const User = z.object({
       .string(`Name ${stringError}`)
       .min(1, `Name ${emptyError}`)
       .max(30, `Name ${maxLengthError(50)}`)
+      .trim()
+      .transform(escape),
+    username: z
+      .string(`Username ${stringError}`)
+      .min(5, `Username ${minLengthError(5)}`)
+      .max(50, `Username ${maxLengthError(50)}`)
       .trim()
       .transform(escape),
     email: z

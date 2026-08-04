@@ -5,6 +5,7 @@ import { prisma } from "./prisma.ts";
 import { createAuthMiddleware, APIError } from "better-auth/api";
 import * as z from "zod";
 import { validateUser } from "../middlewares/validateUser.ts";
+import { username } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -18,5 +19,11 @@ export const auth = betterAuth({
   hooks: {
     before: validateUser,
   },
+  plugins: [
+    username({
+      minUsernameLength: 5,
+      maxUsernameLength: 50,
+    }),
+  ],
   trustedOrigins: ["http://localhost:5173"],
 });
