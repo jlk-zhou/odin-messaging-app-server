@@ -8,13 +8,14 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.ts";
 
 const app = express();
-app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 const corsOptions = {
   origin: process.env.CLIENT_URL,
   credentials: true,
 };
 app.use(cors(corsOptions));
+
+app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

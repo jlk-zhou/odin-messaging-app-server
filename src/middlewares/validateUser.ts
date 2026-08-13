@@ -41,11 +41,13 @@ const User = z.object({
         .string(`Password ${stringError}`)
         .regex(/[a-z]/, `Password ${noLowerCaseError}`)
         .regex(/[A-Z]/, `Password ${noUpperCaseError}`)
-        .regex(/[0-9]/, `Password ${noNumberError}`),
+        .regex(/[0-9]/, `Password ${noNumberError}`)
+        .transform(escape),
       confirmPassword: z
         .string(`Password confirmation ${stringError}`)
         .min(1, `Password confirmation ${emptyError}`)
-        .max(32, `Password confirmation ${maxLengthError(32)}`),
+        .max(32, `Password confirmation ${maxLengthError(32)}`)
+        .transform(escape),
     })
     .refine((body) => body.password === body.confirmPassword, {
       error: "Passwords do not match.",
