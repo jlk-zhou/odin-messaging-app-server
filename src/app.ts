@@ -6,6 +6,7 @@ import routes from "./routes/index.ts";
 import errorHandler from "./errors/errorHandler.ts";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.ts";
+import helmet from "helmet";
 
 const app = express();
 
@@ -14,6 +15,7 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+app.use(helmet());
 
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 
