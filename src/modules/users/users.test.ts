@@ -8,10 +8,10 @@ import {
 import "jest-extended";
 
 // TODO
-describe.skip("GET /users/:username", () => {
+describe.skip("GET /api/users/:username", () => {
   it("returns a user with a particular username", async () => {
     const response = await request(app)
-      .get("/users/alice")
+      .get("/api/users/alice")
       .expect("Content-Type", /json/)
       .expect(200);
 
@@ -30,7 +30,7 @@ describe.skip("GET /users/:username", () => {
 
   it("returns a Not-Found error for trying to get non-existent users", async () => {
     const response = await request(app)
-      .get("/users/nonexistentuser")
+      .get("/api/users/nonexistentuser")
       .expect("Content-Type", /json/)
       .expect(404);
 
@@ -41,7 +41,7 @@ describe.skip("GET /users/:username", () => {
 });
 
 // TODO
-describe.skip("PUT /users/:username", () => {});
+describe.skip("PUT /api/users/:username", () => {});
 
 // TODO
-describe.skip("DELETE /users/:username", () => {});
+describe.skip("DELETE /api/users/:username", () => {});

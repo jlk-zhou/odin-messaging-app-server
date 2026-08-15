@@ -22,8 +22,8 @@ app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/chats", routes.chats);
-app.use("/users", routes.users);
+app.use("/api/chats", routes.chats);
+app.use("/api/users", routes.users);
 
 app.use(errorHandler);
 
