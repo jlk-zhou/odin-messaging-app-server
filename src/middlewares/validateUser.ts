@@ -108,6 +108,15 @@ const ChangePassword = z.object({
   }),
 });
 
+const DeleteUser = z.object({
+  body: z.object({
+    password: z
+      .string(`Password ${stringError}`)
+      .min(1, `Password ${emptyError}`)
+      .max(50, `Password ${maxLengthError(50)}`),
+  }),
+});
+
 export const validateUser = createAuthMiddleware(async (ctx) => {
   if (ctx.path === "/sign-up/email") {
     const result = User.safeParse({
@@ -140,6 +149,15 @@ export const validateUser = createAuthMiddleware(async (ctx) => {
     }
   } else if (ctx.path === "/change-password") {
     const result = ChangePassword.safeParse({ body: ctx.body });
+    if (!result.success) {
+      throw new APIError("BAD_REQUEST", {
+        message: `${JSON.stringify(result.error.issues)}`,
+      });
+    } else {
+      return { context: { ...ctx, body: { ...result.data.body } } };
+    }
+  } else if (ctx.path === "/delete-user") {
+    const result = DeleteUser.safeParse({ body: ctx.body });
     if (!result.success) {
       throw new APIError("BAD_REQUEST", {
         message: `${JSON.stringify(result.error.issues)}`,

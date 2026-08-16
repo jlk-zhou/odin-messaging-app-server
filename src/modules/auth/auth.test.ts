@@ -595,4 +595,43 @@ describe("POST /api/auth/change-password", () => {
 });
 
 // Test deleting user
-describe.skip("POST /api/auth/delete-user", () => {});
+describe("POST /api/auth/delete-user", () => {
+  const endpoint = "/api/auth/delete-user";
+  beforeEach(async () => {
+    const alice = test.createUser({
+      id: "1",
+      name: "Alice",
+      email: "alice@example.com",
+      username: "alice",
+      password: "SecurePassword123",
+    });
+    await test.saveUser(alice);
+    await test.login({ userId: "1" });
+  });
+
+  afterEach(async () => {
+    await test.deleteUser("1");
+  });
+
+  it("does not allow user to delete themselves if they enter too long of a password", async () => {
+    const response = request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        password:
+          "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(
+      (await response).body.message,
+    );
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["password"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+});
