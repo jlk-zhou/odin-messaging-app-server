@@ -465,3 +465,66 @@ describe("POST /api/auth/update-user", () => {
     ]);
   });
 });
+
+// Test changing email
+describe("POST /api/auth/change-email", () => {
+  const endpoint = "/api/auth/change-email";
+  beforeEach(async () => {
+    const alice = test.createUser({
+      id: "1",
+      name: "Alice",
+      email: "alice@example.com",
+      username: "alice",
+      password: "SecurePassword123",
+    });
+    await test.saveUser(alice);
+    await test.login({ userId: "1" });
+  });
+
+  afterEach(async () => {
+    await test.deleteUser("1");
+  });
+
+  it("does not allow user to change email with incorrect format", async () => {
+    const response = request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        newEmail: "notevenanemailsmh",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(
+      (await response).body.message,
+    );
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["newEmail"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+
+  it("does not allow user to change email if input is too long", async () => {
+    const response = request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        newEmail:
+          "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(
+      (await response).body.message,
+    );
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["newEmail"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+});

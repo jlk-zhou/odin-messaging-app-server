@@ -25,6 +25,10 @@ export const auth = betterAuth({
     openAPI(),
   ],
   user: {
+    changeEmail: {
+      enabled: true,
+      updateEmailWithoutVerification: true,
+    },
     additionalFields: {
       bio: {
         type: "string",
