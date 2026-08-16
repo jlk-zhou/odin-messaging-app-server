@@ -2,6 +2,7 @@ import request, { cookies } from "supertest";
 import app from "../../app.ts";
 import { prisma } from "../../lib/prisma.ts";
 import * as z from "zod";
+import { test } from "../../tests/jest.setup.ts";
 
 beforeEach(async () => {
   await prisma.user.deleteMany();
@@ -357,5 +358,110 @@ describe("POST /api/auth/sign-out", () => {
       .post("/api/auth/sign-out")
       .set({ accept: "application/json" })
       .expect(200);
+  });
+});
+
+// Test changing non-essential user info
+describe("POST /api/auth/update-user", () => {
+  const endpoint = "/api/auth/update-user";
+  beforeEach(async () => {
+    const alice = test.createUser({
+      id: "1",
+      name: "Alice",
+      email: "alice@example.com",
+      username: "alice",
+      password: "SecurePassword123",
+    });
+    await test.saveUser(alice);
+    await test.login({ userId: "1" });
+  });
+
+  afterEach(async () => {
+    await test.deleteUser("1");
+  });
+
+  it("does not allow user to change info with wrong input format", async () => {
+    const response = request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        name: 1,
+        image: "notevenaurlsmh",
+        bio: 34,
+        username: 67,
+        displayUsername: 89,
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(
+      (await response).body.message,
+    );
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["name"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["image"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["bio"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["username"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["displayUsername"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+
+  it("does not allow user to change info with over-length input", async () => {
+    const response = request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        name: "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+        image:
+          "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+        bio: "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+        username:
+          "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+        displayUsername:
+          "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(
+      (await response).body.message,
+    );
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["name"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["image"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["bio"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["username"]),
+        message: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: expect.arrayContaining(["displayUsername"]),
+        message: expect.any(String),
+      }),
+    ]);
   });
 });
