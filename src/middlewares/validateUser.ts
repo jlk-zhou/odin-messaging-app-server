@@ -94,6 +94,20 @@ const ChangeEmail = z.object({
   }),
 });
 
+const ChangePassword = z.object({
+  body: z.object({
+    newPassword: z
+      .string(`Password ${stringError}`)
+      .regex(/[a-z]/, `Password ${noLowerCaseError}`)
+      .regex(/[A-Z]/, `Password ${noUpperCaseError}`)
+      .regex(/[0-9]/, `Password ${noNumberError}`),
+    currentPassword: z
+      .string(`Current Password ${stringError}`)
+      .min(1, `Current Password ${emptyError}`)
+      .max(50, `Current Password ${maxLengthError(50)}`),
+  }),
+});
+
 export const validateUser = createAuthMiddleware(async (ctx) => {
   if (ctx.path === "/sign-up/email") {
     const result = User.safeParse({
@@ -117,6 +131,15 @@ export const validateUser = createAuthMiddleware(async (ctx) => {
     }
   } else if (ctx.path === "/change-email") {
     const result = ChangeEmail.safeParse({ body: ctx.body });
+    if (!result.success) {
+      throw new APIError("BAD_REQUEST", {
+        message: `${JSON.stringify(result.error.issues)}`,
+      });
+    } else {
+      return { context: { ...ctx, body: { ...result.data.body } } };
+    }
+  } else if (ctx.path === "/change-password") {
+    const result = ChangePassword.safeParse({ body: ctx.body });
     if (!result.success) {
       throw new APIError("BAD_REQUEST", {
         message: `${JSON.stringify(result.error.issues)}`,

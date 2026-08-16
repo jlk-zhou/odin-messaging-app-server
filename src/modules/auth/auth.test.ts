@@ -528,3 +528,71 @@ describe("POST /api/auth/change-email", () => {
     ]);
   });
 });
+
+// Test changing password
+describe("POST /api/auth/change-password", () => {
+  const endpoint = "/api/auth/change-password";
+  beforeEach(async () => {
+    const alice = test.createUser({
+      id: "1",
+      name: "Alice",
+      email: "alice@example.com",
+      username: "alice",
+      password: "SecurePassword123",
+    });
+    await test.saveUser(alice);
+    await test.login({ userId: "1" });
+  });
+
+  afterEach(async () => {
+    await test.deleteUser("1");
+  });
+
+  it("does not allow user to change password if it is too weak", async () => {
+    const response = request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        newPassword: "!!!!!!!!",
+        currentPassword: "SecurePassword123",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(
+      (await response).body.message,
+    );
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["newPassword"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+
+  it("does not allow user to change password if it is too long", async () => {
+    const response = request(app)
+      .post(endpoint)
+      .set({ accept: "application/json" })
+      .send({
+        newPassword:
+          "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+        currentPassword: "SecurePassword123",
+      })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    const errors: z.core.$ZodIssue[] = JSON.parse(
+      (await response).body.message,
+    );
+    expect(errors).toIncludeAllMembers([
+      expect.objectContaining({
+        path: expect.arrayContaining(["newPassword"]),
+        message: expect.any(String),
+      }),
+    ]);
+  });
+});
+
+// Test deleting user
+describe.skip("POST /api/auth/delete-user", () => {});
