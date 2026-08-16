@@ -1,31 +1,25 @@
 import request from "supertest";
 import app from "../../app.ts";
-import {
-  email as emailRegex,
-  url as urlRegex,
-  uuid as uuidRegex,
-} from "./util/regex.ts";
+import { email as emailRegex } from "./util/regex.ts";
 import "jest-extended";
-import { prisma } from "../../lib/prisma.ts";
-import { auth } from "../../lib/auth.ts";
 import { test } from "../../tests/jest.setup.ts";
 
+beforeEach(async () => {
+  const alice = test.createUser({
+    id: "1",
+    name: "Alice",
+    email: "alice@example.com",
+    username: "alice",
+    password: "SecurePassword123",
+  });
+  await test.saveUser(alice);
+});
+
+afterEach(async () => {
+  await test.deleteUser("1");
+});
+
 describe("GET /api/users/:username", () => {
-  beforeEach(async () => {
-    const alice = test.createUser({
-      id: "1",
-      name: "Alice",
-      email: "alice@example.com",
-      username: "alice",
-      password: "SecurePassword123",
-    });
-    await test.saveUser(alice);
-  });
-
-  afterEach(async () => {
-    await test.deleteUser("1");
-  });
-
   it("returns a user with a particular username", async () => {
     const response = await request(app)
       .get("/api/users/alice")
@@ -38,6 +32,7 @@ describe("GET /api/users/:username", () => {
       email: expect.stringMatching(emailRegex),
       username: "alice",
       bio: expect.toBeOneOf([String, null]),
+      image: expect.toBeOneOf([String, null]),
     });
 
     expect(response).not.toContainKey("password");
@@ -54,9 +49,3 @@ describe("GET /api/users/:username", () => {
     });
   });
 });
-
-// TODO
-describe.skip("PUT /api/users/:username", () => {});
-
-// TODO
-describe.skip("DELETE /api/users/:username", () => {});

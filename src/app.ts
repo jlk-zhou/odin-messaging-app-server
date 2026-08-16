@@ -1,6 +1,7 @@
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
+import crypto from "node:crypto";
 
 import routes from "./routes/index.ts";
 import errorHandler from "./errors/errorHandler.ts";
@@ -15,7 +16,7 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-app.use(helmet());
+// app.use(helmet());
 
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 

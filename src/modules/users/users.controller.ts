@@ -1,13 +1,10 @@
+import type { ParamsDictionary } from "../../../global.d.ts";
 import { NotFoundError } from "../../errors/httpErrors.ts";
 import { prisma } from "../../lib/prisma.ts";
 import { type NextFunction, type Request, type Response } from "express";
 
-interface GetUserParams {
-  username: string;
-}
-
 export async function getUser(
-  req: Request<GetUserParams>,
+  req: Request<ParamsDictionary>,
   res: Response,
   next: NextFunction,
 ) {
