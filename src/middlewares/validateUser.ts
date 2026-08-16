@@ -17,41 +17,32 @@ const noUpperCaseError = "must contain at least one upper case letter.";
 const stringError = "must be a string.";
 
 const User = z.object({
-  body: z
-    .object({
-      name: z
-        .string(`Name ${stringError}`)
-        .min(1, `Name ${emptyError}`)
-        .max(30, `Name ${maxLengthError(50)}`)
-        .trim()
-        .transform(escape),
-      username: z
-        .string(`Username ${stringError}`)
-        .min(5, `Username ${minLengthError(5)}`)
-        .max(50, `Username ${maxLengthError(50)}`)
-        .trim()
-        .transform(escape),
-      email: z
-        .email(`Email ${emailFormatError}`)
-        .min(1, `Email ${emptyError}`)
-        .max(50, `Email ${maxLengthError(50)}`)
-        .trim()
-        .transform(escape),
-      password: z
-        .string(`Password ${stringError}`)
-        .regex(/[a-z]/, `Password ${noLowerCaseError}`)
-        .regex(/[A-Z]/, `Password ${noUpperCaseError}`)
-        .regex(/[0-9]/, `Password ${noNumberError}`)
-        .transform(escape),
-      confirmPassword: z
-        .string(`Password confirmation ${stringError}`)
-        .min(1, `Password confirmation ${emptyError}`)
-        .max(32, `Password confirmation ${maxLengthError(32)}`)
-        .transform(escape),
-    })
-    .refine((body) => body.password === body.confirmPassword, {
-      error: "Passwords do not match.",
-    }),
+  body: z.object({
+    name: z
+      .string(`Name ${stringError}`)
+      .min(1, `Name ${emptyError}`)
+      .max(30, `Name ${maxLengthError(50)}`)
+      .trim()
+      .transform(escape),
+    username: z
+      .string(`Username ${stringError}`)
+      .min(5, `Username ${minLengthError(5)}`)
+      .max(50, `Username ${maxLengthError(50)}`)
+      .trim()
+      .transform(escape),
+    email: z
+      .email(`Email ${emailFormatError}`)
+      .min(1, `Email ${emptyError}`)
+      .max(50, `Email ${maxLengthError(50)}`)
+      .trim()
+      .transform(escape),
+    password: z
+      .string(`Password ${stringError}`)
+      .regex(/[a-z]/, `Password ${noLowerCaseError}`)
+      .regex(/[A-Z]/, `Password ${noUpperCaseError}`)
+      .regex(/[0-9]/, `Password ${noNumberError}`)
+      .transform(escape),
+  }),
 });
 
 export const validateUser = createAuthMiddleware(async (ctx) => {
@@ -64,8 +55,7 @@ export const validateUser = createAuthMiddleware(async (ctx) => {
         message: `${JSON.stringify(result.error.issues)}`,
       });
     } else {
-      const { confirmPassword, ...body } = result.data.body;
-      return { context: { ...ctx, body: { body } } };
+      return { context: { ...ctx, body: { ...result.data.body } } };
     }
   }
 });

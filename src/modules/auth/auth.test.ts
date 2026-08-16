@@ -20,7 +20,6 @@ describe("POST /api/auth/sign-up/email", () => {
         username: "zachjoe",
         email: "zach@example.com",
         password: "HorseraddishLung312",
-        confirmPassword: "HorseraddishLung312",
       })
       .expect("Content-Type", /json/)
       .expect(200);
@@ -72,10 +71,6 @@ describe("POST /api/auth/sign-up/email", () => {
         path: expect.arrayContaining(["password"]),
         message: expect.any(String),
       }),
-      expect.objectContaining({
-        path: expect.arrayContaining(["confirmPassword"]),
-        message: expect.any(String),
-      }),
     ]);
   });
 
@@ -91,8 +86,6 @@ describe("POST /api/auth/sign-up/email", () => {
           "toolongtoolongtoolongtoolongtoolongtoolongtoolong@toolongtoolongtoolongtoolong.com",
         // Long password will be caught by Better Auth instead of Zod
         password: "GoodPassword2456",
-        confirmPassword:
-          "toolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolong",
       })
       .expect("Content-Type", /json/)
       .expect(400);
@@ -111,10 +104,6 @@ describe("POST /api/auth/sign-up/email", () => {
         path: expect.arrayContaining(["email"]),
         message: expect.any(String),
       }),
-      expect.objectContaining({
-        path: expect.arrayContaining(["confirmPassword"]),
-        message: expect.any(String),
-      }),
     ]);
   });
 
@@ -127,8 +116,6 @@ describe("POST /api/auth/sign-up/email", () => {
         username: "goodusername",
         email: "goodemail@example.com",
         password:
-          "Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456",
-        confirmPassword:
           "Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456Toolongtoolong2456",
       })
       .expect("Content-Type", /json/)
@@ -146,7 +133,6 @@ describe("POST /api/auth/sign-up/email", () => {
         username: "goodusername",
         email: "goodemail@example.com",
         password: "Short1",
-        confirmPassword: "Short1",
       })
       .expect("Content-Type", /json/)
       .expect(400);
@@ -165,7 +151,6 @@ describe("POST /api/auth/sign-up/email", () => {
         username: "zachjoe",
         email: "Yo I'm a wrong email format so what?",
         password: "Verysecurepw1",
-        confirmPassword: "Verysecurepw1",
       })
       .expect("Content-Type", /json/)
       .expect(400);
@@ -185,7 +170,6 @@ describe("POST /api/auth/sign-up/email", () => {
       username: "zachjoe",
       email: "zach@example.com",
       password: "SecurePw111",
-      confirmPassword: "SecurePw111",
     });
 
     const usernameTakenResponse = await request(app)
@@ -196,7 +180,6 @@ describe("POST /api/auth/sign-up/email", () => {
         username: "zachjoe",
         email: "zachjoe@example.com",
         password: "SecurePw111",
-        confirmPassword: "SecurePw111",
       })
       .expect("Content-Type", /json/)
       .expect(400);
@@ -213,7 +196,6 @@ describe("POST /api/auth/sign-up/email", () => {
         username: "zachjoel",
         email: "zach@example.com",
         password: "SecurePw111",
-        confirmPassword: "SecurePw111",
       })
       .expect("Content-Type", /json/)
       .expect(422);
@@ -233,7 +215,6 @@ describe("POST /api/auth/sign-up/email", () => {
         email: "goodemail@example.com",
         // Password meets no requirements: no letters and numbers
         password: "!!!!!!!!!",
-        confirmPassword: "!!!!!!!!!",
       })
       .expect("Content-Type", /json/)
       .expect(400);
@@ -254,28 +235,6 @@ describe("POST /api/auth/sign-up/email", () => {
       }),
     ]);
   });
-
-  it("does not create the user if password confirmation does not match", async () => {
-    const response = await request(app)
-      .post(endpoint)
-      .set({ accept: "application/json" })
-      .send({
-        name: "Zach",
-        username: "zachjoe",
-        email: "zach@example.com",
-        password: "Verysecurepw1",
-        confirmPassword: "Verysecurepw2",
-      })
-      .expect("Content-Type", /json/)
-      .expect(400);
-
-    const errors: z.core.$ZodIssue[] = JSON.parse(response.body.message);
-    expect(errors).toIncludeAllMembers([
-      expect.objectContaining({
-        message: expect.stringMatching(/password|match/i),
-      }),
-    ]);
-  });
 });
 
 // Test signing in
@@ -290,7 +249,6 @@ describe("POST /api/auth/sign-in/*", () => {
         username: "zachjoe",
         email: "zach@example.com",
         password: "HorseraddishLung312",
-        confirmPassword: "HorseraddishLung312",
       });
   });
 
