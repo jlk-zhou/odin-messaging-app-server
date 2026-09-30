@@ -4,6 +4,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma.ts";
 import { validateUser } from "../middlewares/validateUser.ts";
 import { openAPI, username } from "better-auth/plugins";
+import "dotenv/config";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -39,5 +40,5 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: ["http://localhost:5173"],
+  trustedOrigins: [process.env.CLIENT_URL as string],
 });
